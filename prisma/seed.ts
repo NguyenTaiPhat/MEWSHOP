@@ -9,76 +9,24 @@ function getAvatarUrl(seed: string) {
   return `data:image/svg+xml;utf8,${svg}`;
 }
 
-
-
 async function main() {
-  const adminPassword = await hash("admin123", 12);
-  const userPassword = await hash("user123", 12);
-  const mewPassword = await hash("tiemcuamew123", 12);
+  const adminEmail = process.env.SEED_ADMIN_EMAIL || "admin@mewshop.vn";
+  const adminPasswordRaw = process.env.SEED_ADMIN_PASSWORD || "ChangeMe123!";
+  const adminPassword = await hash(adminPasswordRaw, 12);
 
-  const admin = await prisma.user.upsert({
-    where: { email: "admin@camrental.vn" },
-    update: { avatar: getAvatarUrl("admin@camrental.vn") },
+  await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: { avatar: getAvatarUrl(adminEmail) },
     create: {
-      email: "admin@camrental.vn",
+      email: adminEmail,
       passwordHash: adminPassword,
-      name: "Admin System",
+      name: "System Admin",
       role: "ADMIN",
-      phone: "0901234567",
-      avatar: getAvatarUrl("admin@camrental.vn"),
+      phone: "0900000000",
+      avatar: getAvatarUrl(adminEmail),
     },
   });
 
-  const mewAdmin1 = await prisma.user.upsert({
-    where: { email: "tiemcuamew" },
-    update: {
-      passwordHash: mewPassword,
-      role: "ADMIN",
-      name: "Tiệm Của Mew Admin",
-      avatar: getAvatarUrl("tiemcuamew"),
-    },
-    create: {
-      email: "tiemcuamew",
-      passwordHash: mewPassword,
-      name: "Tiệm Của Mew Admin",
-      role: "ADMIN",
-      phone: "0901234567",
-      avatar: getAvatarUrl("tiemcuamew"),
-    },
-  });
-
-  const mewAdmin2 = await prisma.user.upsert({
-    where: { email: "tiemcuamew@gmail.com" },
-    update: {
-      passwordHash: mewPassword,
-      role: "ADMIN",
-      name: "Tiệm Của Mew Admin",
-      avatar: getAvatarUrl("tiemcuamew@gmail.com"),
-    },
-    create: {
-      email: "tiemcuamew@gmail.com",
-      passwordHash: mewPassword,
-      name: "Tiệm Của Mew Admin",
-      role: "ADMIN",
-      phone: "0901234567",
-      avatar: getAvatarUrl("tiemcuamew@gmail.com"),
-    },
-  });
-
-  const user = await prisma.user.upsert({
-    where: { email: "user@test.vn" },
-    update: { avatar: getAvatarUrl("user@test.vn") },
-    create: {
-      email: "user@test.vn",
-      passwordHash: userPassword,
-      name: "Nguyen Van A",
-      role: "USER",
-      phone: "0909876543",
-      avatar: getAvatarUrl("user@test.vn"),
-    },
-  });
-
-  // Seed Camera Products (Camera-Only)
   const cameraProducts = [
     {
       name: "Sony FX6 Cinema Line Camera",
@@ -182,7 +130,6 @@ async function main() {
     const existing = await prisma.product.findFirst({ where: { name: prodData.name } });
     if (!existing) {
       const createdProd = await prisma.product.create({ data: prodData });
-      // Create available slots
       const today = new Date();
       for (let i = 0; i < 5; i++) {
         const startDate = new Date(today);
@@ -205,19 +152,18 @@ async function main() {
     }
   }
 
-  // Payment settings
   const paymentSet = await prisma.paymentSettings.findFirst();
   if (!paymentSet) {
     await prisma.paymentSettings.create({
       data: {
         bankName: "Vietcombank",
-        accountNumber: "090123456789",
-        accountHolder: "TIEM CUA MEW CAMERA RENTAL",
+        accountNumber: "090000000000",
+        accountHolder: "MEWSHOP CAMERA RENTAL",
       },
     });
   }
 
-  console.log("Database seeded successfully with SQLite camera products & avatars!");
+  console.log("Database seeded successfully");
 }
 
 main()
