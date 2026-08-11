@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  avatar       String?
+  role         String   @default("USER")
+  balance      Float    @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  bookings      Booking[]
+  conversations Conversation[]
+  messages      Message[]
+  transactions  Transaction[]
+  auditLogs     AuditLog[]
+}
+
+model Product {
+  id              String   @id @default(uuid())
+  name            String
+  description     String
+  images          String   @default("[]")
+  videoUrl        String?
+  sampleImages    String?  @default("[]")
+  pricePerDay     Float
+  pricePerHour    Float
+  depositRequired Float
+  category        String
+  brand           String
+  condition       String
+  status          String   @default("AVAILABLE")
+  specs           String?  @default("{}")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  slots    AvailableSlot[]
+  bookings Booking[]
+}
+
+model AvailableSlot {
+  id        String   @id @default(uuid())
+  productId String
+  startDate DateTime
+  endDate   DateTime
+  status    String   @default("OPEN")
+
+  product  Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@index([productId, status])
+  @@index([startDate, endDate])
+}
+
+model Booking {
+  id            String   @id @default(uuid())
+  userId        String
+  productId     String
+  slotId        String
+  startDate     DateTime
+  endDate       DateTime
+  totalPrice    Float
+  depositAmount Float
+  depositStatus String   @default("PENDING")
+  bookingStatus String   @default("PENDING")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id])
+  product      Product       @relation(fields: [productId], references: [id])
+  slot         AvailableSlot @relation(fields: [slotId], references: [id])
+  transactions Transaction[]
+
+  @@index([userId])
+  @@index([bookingStatus])
+}
+
+model Conversation {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id])
+  messages Message[]
+}
+
+model Message {
+  id             String    @id @default(uuid())
+  conversationId String
+  senderId       String
+  content        String
+  type           String    @default("TEXT")
+  readAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id])
+
+  @@index([conversationId, createdAt])
+}
+
+model Transaction {
+  id        String   @id @default(uuid())
+  userId    String
+  bookingId String?
+  amount    Float
+  type      String
+  status    String   @default("PENDING")
+  adminNote String?
+  createdAt DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id])
+  booking Booking? @relation(fields: [bookingId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+}
+
+model PaymentSettings {
+  id            String  @id @default(uuid())
+  bankName      String
+  accountNumber String
+  accountHolder String
+  qrCodeUrl     String?
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String
+  action     String
+  targetType String
+  targetId   String
+  metadata   String?  @default("{}")
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}

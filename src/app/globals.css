@@ -1,0 +1,11 @@
+/* Main CSS Import Manifest - Modularized Architecture */
+
+@import "../styles/variables.css";
+@import "../styles/components.css";
+@import "../styles/home.css";
+@import "../styles/admin.css";
+@import "../styles/auth.css";
+@import "../styles/products.css";
+@import "../styles/booking.css";
+@import "../styles/chat.css";
+@import "../styles/info.css";
