@@ -9,7 +9,7 @@ export async function GET(req: Request) {
   const { session, error } = await requireAuth();
   if (error) return error;
 
-  const { searchParams } = new URL(req.url);
+  const { searchParams } = new URL(req.url, "http://localhost");
   const conversationId = searchParams.get("conversationId");
   const cursor = searchParams.get("cursor");
   const limit = 50;

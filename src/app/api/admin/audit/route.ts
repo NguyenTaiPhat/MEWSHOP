@@ -8,7 +8,7 @@ export async function GET(req: Request) {
   const { error } = await requireAdmin();
   if (error) return error;
 
-  const { searchParams } = new URL(req.url);
+  const { searchParams } = new URL(req.url, "http://localhost");
   const action = searchParams.get("action");
   const page = parseInt(searchParams.get("page") || "1");
   const limit = 50;

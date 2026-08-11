@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   const { session, error } = await requireAuth();
   if (error) return error;
 
-  const { searchParams } = new URL(req.url);
+  const { searchParams } = new URL(req.url, "http://localhost");
   const status = searchParams.get("status");
 
   const where: Record<string, unknown> = {};

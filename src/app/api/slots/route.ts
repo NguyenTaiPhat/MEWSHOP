@@ -6,7 +6,7 @@ import { slotSchema } from "@/lib/validators";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
+  const { searchParams } = new URL(req.url, "http://localhost");
   const productId = searchParams.get("productId");
   const month = searchParams.get("month");
   const year = searchParams.get("year");

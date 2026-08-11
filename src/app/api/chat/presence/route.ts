@@ -39,7 +39,7 @@ export async function GET(req: Request) {
     });
   } else {
     // Admin checking target User presence
-    const { searchParams } = new URL(req.url);
+    const { searchParams } = new URL(req.url, "http://localhost");
     const targetUserId = searchParams.get("userId");
 
     if (!targetUserId) {

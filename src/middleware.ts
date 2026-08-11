@@ -45,12 +45,13 @@ export default withAuth(
     }
 
     if (pathname.startsWith("/admin") && token?.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
+      return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
     }
 
     return NextResponse.next();
   },
   {
+    secret: process.env.NEXTAUTH_SECRET || "mew_anti_spam_secret_key_2026",
     callbacks: {
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl;
