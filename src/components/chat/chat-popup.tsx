@@ -31,7 +31,6 @@ export function ChatPopup() {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const prevMessagesCountRef = useRef(0);
 
-  // Play subtle audio alert on new message
   function playAlertSound() {
     try {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -49,14 +48,9 @@ export function ChatPopup() {
     } catch {}
   }
 
-  // Hide popup on admin routes and main chat page
-  if (pathname.startsWith("/admin") || pathname.startsWith("/chat")) {
-    return null;
-  }
-
   // Fetch initial conversation ID & Presence
   useEffect(() => {
-    if (!session) return;
+    if (!session || pathname.startsWith("/admin") || pathname.startsWith("/chat")) return;
 
     fetch("/api/chat/conversations")
       .then((r) => (r.ok ? r.json() : null))
@@ -69,7 +63,6 @@ export function ChatPopup() {
       })
       .catch(() => {});
 
-    // Chỉ check presence và poll messages khi Chat Popup ĐANG MỞ
     if (!isOpen) return;
 
     function checkPresence() {
@@ -82,12 +75,14 @@ export function ChatPopup() {
     }
 
     checkPresence();
-    const presenceInterval = setInterval(checkPresence, 15000); // 15s/lần khi đang mở chat
+    const presenceInterval = setInterval(checkPresence, 15000);
     return () => clearInterval(presenceInterval);
-  }, [session, isOpen]);
+  }, [session, isOpen, pathname]);
 
-  // Listen for custom "open-chat-popup" trigger event from product detail pages or actions
+  // Listen for custom "open-chat-popup" trigger event
   useEffect(() => {
+    if (pathname.startsWith("/admin") || pathname.startsWith("/chat")) return;
+
     function handleOpenChatPopup(e: any) {
       setIsOpen(true);
       const initialMessage = e.detail?.initialMessage;
@@ -110,11 +105,11 @@ export function ChatPopup() {
 
     window.addEventListener("open-chat-popup", handleOpenChatPopup);
     return () => window.removeEventListener("open-chat-popup", handleOpenChatPopup);
-  }, [conversationId]);
+  }, [conversationId, pathname]);
 
-  // Real-time message polling (chỉ chạy khi isOpen === true)
+  // Real-time message polling
   useEffect(() => {
-    if (!session || !conversationId || !isOpen) return;
+    if (!session || !conversationId || !isOpen || pathname.startsWith("/admin") || pathname.startsWith("/chat")) return;
 
     function pollMessages() {
       fetch(`/api/chat/messages?conversationId=${conversationId}`)
@@ -138,9 +133,9 @@ export function ChatPopup() {
     }
 
     pollMessages();
-    const interval = setInterval(pollMessages, 5000); // 5s/lần khi đang mở chat
+    const interval = setInterval(pollMessages, 5000);
     return () => clearInterval(interval);
-  }, [session, conversationId, isOpen]);
+  }, [session, conversationId, isOpen, pathname]);
 
   // Clear unread count when opening chat
   useEffect(() => {
@@ -150,7 +145,7 @@ export function ChatPopup() {
     }
   }, [isOpen]);
 
-  // Smart Auto scroll: Only scroll if near bottom or initial load
+  // Smart Auto scroll
   const isInitialLoadRef = useRef(true);
 
   useEffect(() => {
@@ -204,6 +199,11 @@ export function ChatPopup() {
     }
   }
 
+  // Hide popup on admin routes and main chat page (moved AFTER all hooks to follow React Rules of Hooks)
+  if (pathname.startsWith("/admin") || pathname.startsWith("/chat")) {
+    return null;
+  }
+
   return (
     <>
       {/* Toast Real-time Notification Banner */}
@@ -220,126 +220,98 @@ export function ChatPopup() {
               <span>{toastMessage.sender?.name || "Tiệm Của Mew Admin"}</span>
               <span className="chat-toast-time">{formatTime(toastMessage.createdAt)}</span>
             </div>
-            <div className="chat-toast-text">{toastMessage.content}</div>
+            <div className="chat-toast-snippet">{toastMessage.content}</div>
           </div>
-          <button
-            className="chat-toast-close"
-            onClick={(e) => {
-              e.stopPropagation();
-              setToastMessage(null);
-            }}
-          >
-            ✕
-          </button>
         </div>
       )}
 
-      {/* Floating Trigger Button with Unread Badge */}
-      <button
-        className="chat-floating-btn"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label="Toggle Support Chat Popup"
-        style={{ color: "#ffffff" }}
-      >
-        {unreadCount > 0 && !isOpen && (
-          <span className="chat-unread-badge">{unreadCount > 9 ? "9+" : unreadCount}</span>
-        )}
-        {isOpen ? (
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5">
-            <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        ) : (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-          </svg>
-        )}
-      </button>
+      {/* Floating Trigger Pill Icon */}
+      {!isOpen && (
+        <button
+          type="button"
+          className="chat-floating-trigger"
+          onClick={() => setIsOpen(true)}
+          aria-label="Mở khung hỗ trợ trực tuyến"
+        >
+          <div className="chat-trigger-icon-wrap">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            {unreadCount > 0 && <span className="chat-unread-badge">{unreadCount > 9 ? "9+" : unreadCount}</span>}
+          </div>
+          <div className="chat-trigger-pulse"></div>
+        </button>
+      )}
 
-      {/* Floating Chat Popup Window */}
+      {/* Expanded Floating Window */}
       {isOpen && (
         <div className="chat-popup-window">
+          {/* Header */}
           <div className="chat-popup-header">
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
-              <div className={presence.isOnline ? "chat-online-dot" : "chat-offline-dot"} />
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: 700, fontSize: "0.875rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  Tư vấn Tiệm Của Mew
-                </div>
-                <div style={{ fontSize: "0.7rem", color: presence.isOnline ? "var(--success)" : "var(--text-muted)", fontWeight: 600 }}>
-                  {presence.statusText}
-                </div>
+            <div className="chat-popup-header-info">
+              <div className="chat-popup-avatar-wrap">
+                <img src={getAvatarUrl("Tiệm Của Mew")} alt="Support Avatar" />
+                <span className={`chat-presence-dot ${presence.isOnline ? "online" : "offline"}`}></span>
+              </div>
+              <div className="chat-popup-header-text">
+                <h3>Hỗ Trợ Tiệm Của Mew</h3>
+                <p className="chat-presence-status">{presence.statusText}</p>
               </div>
             </div>
-            <button className="modal-close" onClick={() => setIsOpen(false)}>
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-            </button>
+
+            <div className="chat-popup-header-actions">
+              <button
+                type="button"
+                className="chat-header-btn"
+                onClick={() => setIsOpen(false)}
+                title="Thu nhỏ"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+            </div>
           </div>
 
-          <div className="chat-messages" ref={messagesContainerRef} style={{ padding: "14px", flex: 1 }}>
-            {!session ? (
-              <div className="chat-empty" style={{ padding: "20px 10px" }}>
-                <div style={{ fontWeight: 600, color: "var(--text-primary)", textAlign: "center" }}>Vui lòng đăng nhập</div>
-                <div style={{ fontSize: "0.8125rem", color: "var(--text-muted)", textAlign: "center", marginBottom: "12px" }}>
-                  Đăng nhập tài khoản để chat trực tiếp với Quản trị viên 24/7.
-                </div>
-                <a href="/login" className="btn btn-primary btn-sm">Đăng nhập ngay</a>
-              </div>
-            ) : messages.length === 0 ? (
-              <div className="chat-empty" style={{ padding: "20px 10px" }}>
-                <div style={{ fontWeight: 600, color: "var(--text-primary)", textAlign: "center" }}>Xin chào!</div>
-                <div style={{ fontSize: "0.8125rem", color: "var(--text-muted)", textAlign: "center" }}>
-                  Nhắn tin cho Tiệm Của Mew để được tư vấn thiết bị máy ảnh phù hợp nhất.
-                </div>
+          {/* Quick Reply Chips */}
+          <QuickReplyChips
+            onSelect={(text) => {
+              setInput(text);
+            }}
+          />
+
+          {/* Messages Feed */}
+          <div className="chat-popup-messages" ref={messagesContainerRef}>
+            {messages.length === 0 ? (
+              <div className="chat-empty-state">
+                <p>Xin chào! Tiệm Của Mew có thể giúp gì cho bạn hôm nay?</p>
               </div>
             ) : (
-              messages.map((msg) => {
-                const isOwn = msg.senderId === (session?.user as any)?.id;
-                return (
-                  <div key={msg.id} style={{ display: "flex", gap: "6px", alignItems: "flex-end", justifyContent: isOwn ? "flex-end" : "flex-start" }}>
-                    {!isOwn && (
-                      <div className="header-avatar" style={{ width: "26px", height: "26px", flexShrink: 0 }}>
-                        <img
-                          src={getAvatarUrl(msg.sender?.email || msg.sender?.name || "Admin")}
-                          alt=""
-                          style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }}
-                        />
-                      </div>
-                    )}
-                    <ChatMessageBubble msg={msg} isOwn={isOwn} />
-                  </div>
-                );
-              })
+              messages.map((msg) => (
+                <ChatMessageBubble
+                  key={msg.id}
+                  msg={msg}
+                  isOwn={msg.senderId === (session?.user as any)?.id}
+                />
+              ))
             )}
           </div>
 
-          {session && (
-            <QuickReplyChips
-              onSelect={(text) => setInput(text)}
-              userInfo={{
-                name: session.user?.name || undefined,
-                email: session.user?.email || undefined,
-              }}
+          {/* Input Form */}
+          <form className="chat-popup-footer" onSubmit={sendMessage}>
+            <input
+              type="text"
+              placeholder="Nhập tin nhắn..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
             />
-          )}
-
-          {session && (
-            <form onSubmit={sendMessage} className="chat-input-bar" style={{ padding: "10px 12px" }}>
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Nhập tin nhắn..."
-                style={{ padding: "8px 14px", fontSize: "0.875rem" }}
-              />
-              <button type="submit" className="chat-send-btn" disabled={sending} style={{ width: "36px", height: "36px" }}>
-                <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                  <path d="M3 10l14-7-7 14v-7H3z" fill="currentColor"/>
-                </svg>
-              </button>
-            </form>
-          )}
+            <button type="submit" disabled={!input.trim() || sending} aria-label="Gửi">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </form>
         </div>
       )}
     </>
