@@ -56,6 +56,11 @@ export default withAuth(
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl;
 
+        // Cho phép truy cập công khai toàn bộ file tĩnh (Fonts, Images, Icons)
+        if (/\.(?:svg|png|jpg|jpeg|gif|webp|ico|ttf|otf|woff|woff2)$/i.test(pathname)) {
+          return true;
+        }
+
         const publicPaths = ["/", "/products", "/login", "/register", "/about", "/contact", "/terms", "/policy"];
         const isPublic = publicPaths.some(
           (p) =>
@@ -75,6 +80,6 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|uploads|camera3d).*)",
+    "/((?!_next/static|_next/image|favicon.ico|uploads|camera3d|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|ttf|otf|woff|woff2)$).*)",
   ],
 };
