@@ -6,6 +6,7 @@ import { prisma } from "./prisma";
 export type Role = "ADMIN" | "USER";
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET || "mew_anti_spam_secret_key_2026",
   providers: [
     CredentialsProvider({
       name: "credentials",
