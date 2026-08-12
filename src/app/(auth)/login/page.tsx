@@ -194,6 +194,62 @@ export default function LoginPage() {
         />
         <div className="auth-ambient-overlay" />
       </div>
+
+      <div className="auth-floating-card auth-floating-top-left">
+        <div className="auth-floating-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+            <circle cx="12" cy="13" r="4" />
+          </svg>
+        </div>
+        <div className="auth-floating-text">
+          <span className="auth-floating-tag">THIẾT BỊ HOT</span>
+          <span className="auth-floating-title">Sony A7 IV + 35mm GM</span>
+          <span className="auth-floating-sub">Thuê từ 250.000đ / ngày</span>
+        </div>
+      </div>
+
+      <div className="auth-floating-card auth-floating-bottom-left">
+        <div className="auth-floating-icon">
+          <svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+        </div>
+        <div className="auth-floating-text">
+          <span className="auth-floating-tag">THÔNG SỐ EXIF</span>
+          <span className="auth-floating-title">ISO 100 • f/1.4 • 1/2000s</span>
+          <span className="auth-floating-sub">Khẩu độ ống kính sắc nét</span>
+        </div>
+      </div>
+
+      <div className="auth-floating-card auth-floating-top-right">
+        <div className="auth-floating-icon">
+          <svg viewBox="0 0 24 24">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+        </div>
+        <div className="auth-floating-text">
+          <span className="auth-floating-tag">ĐÁNH GIÁ 5 SAO</span>
+          <span className="auth-floating-title">Giao máy 30 phút</span>
+          <span className="auth-floating-sub">Minh Anh • Hà Nội</span>
+        </div>
+      </div>
+
+      <div className="auth-floating-card auth-floating-bottom-right">
+        <div className="auth-floating-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        </div>
+        <div className="auth-floating-text">
+          <span className="auth-floating-tag">CAM KẾT DỊCH VỤ</span>
+          <span className="auth-floating-title">100% Chính Hãng</span>
+          <span className="auth-floating-sub">Bảo dưỡng Sensor định kỳ</span>
+        </div>
+      </div>
+
       <Suspense fallback={<div className="auth-split-wrapper" style={{ height: "640px" }} />}>
         <LoginForm />
       </Suspense>
