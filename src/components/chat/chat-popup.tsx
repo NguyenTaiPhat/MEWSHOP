@@ -27,9 +27,25 @@ export function ChatPopup() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [toastMessage, setToastMessage] = useState<Message | null>(null);
   const [presence, setPresence] = useState<{ isOnline: boolean; statusText: string }>({ isOnline: true, statusText: "Đang online" });
+  const [productTitle, setProductTitle] = useState("");
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const prevMessagesCountRef = useRef(0);
+
+  const isProductPage = pathname.startsWith("/products/") && pathname !== "/products";
+
+  useEffect(() => {
+    if (isProductPage) {
+      const headingEl = document.querySelector("h1");
+      if (headingEl && headingEl.textContent) {
+        setProductTitle(headingEl.textContent.trim());
+      } else {
+        setProductTitle("Thiết Bị Nhiếp Ảnh");
+      }
+    } else {
+      setProductTitle("");
+    }
+  }, [pathname, isProductPage]);
 
   function playAlertSound() {
     try {
@@ -48,7 +64,6 @@ export function ChatPopup() {
     } catch {}
   }
 
-  // Fetch initial conversation ID & Presence
   useEffect(() => {
     if (!session || pathname.startsWith("/admin") || pathname.startsWith("/chat")) return;
 
@@ -79,7 +94,6 @@ export function ChatPopup() {
     return () => clearInterval(presenceInterval);
   }, [session, isOpen, pathname]);
 
-  // Listen for custom "open-chat-popup" trigger event
   useEffect(() => {
     if (pathname.startsWith("/admin") || pathname.startsWith("/chat")) return;
 
@@ -107,7 +121,6 @@ export function ChatPopup() {
     return () => window.removeEventListener("open-chat-popup", handleOpenChatPopup);
   }, [conversationId, pathname]);
 
-  // Real-time message polling
   useEffect(() => {
     if (!session || !conversationId || !isOpen || pathname.startsWith("/admin") || pathname.startsWith("/chat")) return;
 
@@ -137,7 +150,6 @@ export function ChatPopup() {
     return () => clearInterval(interval);
   }, [session, conversationId, isOpen, pathname]);
 
-  // Clear unread count when opening chat
   useEffect(() => {
     if (isOpen) {
       setUnreadCount(0);
@@ -145,7 +157,6 @@ export function ChatPopup() {
     }
   }, [isOpen]);
 
-  // Smart Auto scroll
   const isInitialLoadRef = useRef(true);
 
   useEffect(() => {
@@ -165,7 +176,6 @@ export function ChatPopup() {
     }
   }, [messages, isOpen]);
 
-  // Auto hide Toast preview after 6 seconds
   useEffect(() => {
     if (!toastMessage) return;
     const timer = setTimeout(() => {
@@ -199,14 +209,12 @@ export function ChatPopup() {
     }
   }
 
-  // Hide popup on admin routes and main chat page (moved AFTER all hooks to follow React Rules of Hooks)
   if (pathname.startsWith("/admin") || pathname.startsWith("/chat") || pathname === "/login" || pathname === "/register") {
     return null;
   }
 
   return (
     <>
-      {/* Toast Real-time Notification Banner */}
       {toastMessage && !isOpen && (
         <div className="chat-toast-banner" onClick={() => setIsOpen(true)}>
           <div className="chat-toast-avatar">
@@ -225,95 +233,108 @@ export function ChatPopup() {
         </div>
       )}
 
-      {/* Floating Trigger Pill Icon */}
-      {!isOpen && (
-        <button
-          type="button"
-          className="chat-floating-trigger"
-          onClick={() => setIsOpen(true)}
-          aria-label="Mở khung hỗ trợ trực tuyến"
-        >
-          <div className="chat-trigger-icon-wrap">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      <button
+        type="button"
+        className={`chat-floating-trigger ${isOpen ? "active" : ""}`}
+        onClick={() => setIsOpen(!isOpen)}
+        aria-label={isOpen ? "Thu nhỏ khung hỗ trợ" : "Mở khung hỗ trợ trực tuyến"}
+      >
+        <div className="chat-trigger-icon-wrap">
+          {isOpen ? (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
-            {unreadCount > 0 && <span className="chat-unread-badge">{unreadCount > 9 ? "9+" : unreadCount}</span>}
-          </div>
-          <div className="chat-trigger-pulse"></div>
-        </button>
-      )}
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          )}
+          {!isOpen && unreadCount > 0 && <span className="chat-unread-badge">{unreadCount > 9 ? "9+" : unreadCount}</span>}
+        </div>
+        <div className="chat-trigger-pulse" />
+      </button>
 
-      {/* Expanded Floating Window */}
-      {isOpen && (
-        <div className="chat-popup-window">
-          {/* Header */}
-          <div className="chat-popup-header">
-            <div className="chat-popup-header-info">
-              <div className="chat-popup-avatar-wrap">
-                <img src={getAvatarUrl("Tiệm Của Mew")} alt="Support Avatar" />
-                <span className={`chat-presence-dot ${presence.isOnline ? "online" : "offline"}`}></span>
-              </div>
-              <div className="chat-popup-header-text">
-                <h3>Hỗ Trợ Tiệm Của Mew</h3>
-                <p className="chat-presence-status">{presence.statusText}</p>
-              </div>
+      <div className={`chat-popup-window ${isOpen ? "active" : ""}`}>
+        <div className="chat-popup-header">
+          <div className="chat-popup-header-info">
+            <div className="chat-popup-avatar-wrap">
+              <img src={getAvatarUrl("Tiệm Của Mew")} alt="Support Avatar" />
+              <span className={`chat-presence-dot ${presence.isOnline ? "online" : "offline"}`} />
             </div>
-
-            <div className="chat-popup-header-actions">
-              <button
-                type="button"
-                className="chat-header-btn"
-                onClick={() => setIsOpen(false)}
-                title="Thu nhỏ"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-              </button>
+            <div className="chat-popup-header-text">
+              <h3>Hỗ Trợ Tiệm Của Mew</h3>
+              <p className="chat-presence-status">{presence.statusText}</p>
             </div>
           </div>
 
-          {/* Quick Reply Chips */}
-          <QuickReplyChips
-            onSelect={(text) => {
-              setInput(text);
-            }}
-          />
-
-          {/* Messages Feed */}
-          <div className="chat-popup-messages" ref={messagesContainerRef}>
-            {messages.length === 0 ? (
-              <div className="chat-empty-state">
-                <p>Xin chào! Tiệm Của Mew có thể giúp gì cho bạn hôm nay?</p>
-              </div>
-            ) : (
-              messages.map((msg) => (
-                <ChatMessageBubble
-                  key={msg.id}
-                  msg={msg}
-                  isOwn={msg.senderId === (session?.user as any)?.id}
-                />
-              ))
-            )}
-          </div>
-
-          {/* Input Form */}
-          <form className="chat-popup-footer" onSubmit={sendMessage}>
-            <input
-              type="text"
-              placeholder="Nhập tin nhắn..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-            />
-            <button type="submit" disabled={!input.trim() || sending} aria-label="Gửi">
+          <div className="chat-popup-header-actions">
+            <button
+              type="button"
+              className="chat-header-btn"
+              onClick={() => setIsOpen(false)}
+              title="Thu nhỏ"
+            >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
             </button>
-          </form>
+          </div>
         </div>
-      )}
+
+        {isProductPage && (
+          <div className="chat-product-context-bar">
+            <div className="chat-product-context-info">
+              <span className="chat-product-context-tag">ĐANG XEM</span>
+              <span className="chat-product-context-title">{productTitle || "Sản Phẩm Nhiếp Ảnh"}</span>
+            </div>
+            <button
+              type="button"
+              className="chat-product-context-btn"
+              onClick={() => setInput(`Tôi muốn nhận tư vấn thuê thiết bị ${productTitle || "này"}.`)}
+            >
+              TƯ VẤN MÁY NÀY
+            </button>
+          </div>
+        )}
+
+        <QuickReplyChips
+          onSelect={(text) => {
+            setInput(text);
+          }}
+        />
+
+        <div className="chat-popup-messages" ref={messagesContainerRef}>
+          {messages.length === 0 ? (
+            <div className="chat-empty-state">
+              <p>Xin chào! Tiệm Của Mew có thể giúp gì cho bạn hôm nay?</p>
+            </div>
+          ) : (
+            messages.map((msg) => (
+              <ChatMessageBubble
+                key={msg.id}
+                msg={msg}
+                isOwn={msg.senderId === (session?.user as any)?.id}
+              />
+            ))
+          )}
+        </div>
+
+        <form className="chat-popup-footer" onSubmit={sendMessage}>
+          <input
+            type="text"
+            placeholder="Nhập tin nhắn..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
+          <button type="submit" disabled={!input.trim() || sending} aria-label="Gửi">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="22" y1="2" x2="11" y2="13" />
+              <polygon points="22 2 15 22 11 13 2 9 22 2" />
+            </svg>
+          </button>
+        </form>
+      </div>
     </>
   );
 }

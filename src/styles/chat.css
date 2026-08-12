@@ -308,8 +308,8 @@
   justify-content: center;
   box-shadow: 0 8px 24px rgba(217, 119, 6, 0.4);
   cursor: pointer;
-  z-index: 9990;
-  transition: all var(--transition-base);
+  z-index: 10000;
+  transition: all 250ms cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .chat-floating-btn:hover,
@@ -326,17 +326,28 @@
   max-width: calc(100vw - 32px);
   height: 520px;
   max-height: calc(100vh - 120px);
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(217, 119, 6, 0.35);
   border-radius: var(--radius-xl);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), 0 0 0 1px var(--border-hover);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  z-index: 9990;
-  animation: modalSlideUp 250ms cubic-bezier(0.25, 1, 0.5, 1);
+  z-index: 10000;
+  opacity: 0;
+  transform: translateY(20px) scale(0.92);
+  pointer-events: none;
+  visibility: hidden;
+  transition: transform 280ms cubic-bezier(0.25, 1, 0.5, 1), opacity 220ms ease, visibility 280ms ease;
+}
+
+.chat-popup-window.active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+  visibility: visible;
 }
 
 .chat-popup-header {
@@ -509,23 +520,82 @@
   box-shadow: none;
 }
 
+.chat-product-context-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 14px;
+  background: rgba(217, 119, 6, 0.14);
+  border-bottom: 1px solid rgba(217, 119, 6, 0.25);
+}
+
+.chat-product-context-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+
+.chat-product-context-tag {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.chat-product-context-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-product-context-btn {
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+  color: #ffffff;
+  font-family: var(--font-label);
+  font-weight: 800;
+  font-size: 0.6875rem;
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 150ms ease;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.chat-product-context-btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35);
+}
+
 @media (max-width: 768px) {
-  .chat-floating-btn {
-    bottom: 84px;
+  .chat-floating-btn,
+  .chat-floating-trigger {
+    bottom: 92px;
     right: 16px;
-    width: 46px;
-    height: 46px;
+    width: 48px;
+    height: 48px;
   }
   .chat-popup-window {
-    bottom: 80px;
+    bottom: 92px;
     right: 12px;
     left: 12px;
     width: auto;
     max-width: none;
-    height: 440px;
+    height: 460px;
   }
   .chat-toast-banner {
-    bottom: 140px;
+    bottom: 152px;
     right: 12px;
     left: 12px;
     width: auto;

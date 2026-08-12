@@ -15,6 +15,14 @@ const PRESETS = [
     text: "Thông tin thanh toán cọc máy:\nSTK: 0769657008\nNgân hàng: MB BANK\nChủ TK: NGUYEN TAI PHAT\nCú pháp: COC_MAY",
   },
   {
+    label: "Bảng Giá Thuê Máy",
+    text: "Cho tôi xin bảng giá thuê máy ảnh và ống kính theo ngày tại Tiệm Của Mew.",
+  },
+  {
+    label: "Thủ Tục Cần Thiết",
+    text: "Cho tôi hỏi thủ tục và giấy tờ cần thiết để làm hợp đồng thuê máy ảnh.",
+  },
+  {
     label: "Cọc 2 Triệu",
     text: "Thông tin thanh toán cọc máy:\nSố tiền cọc: 2.000.000 đ\nSTK: 0769657008\nNgân hàng: MB BANK\nChủ TK: NGUYEN TAI PHAT\nCú pháp: COC_MAY",
   },
@@ -22,7 +30,6 @@ const PRESETS = [
     label: "Cọc 5 Triệu",
     text: "Thông tin thanh toán cọc máy:\nSố tiền cọc: 5.000.000 đ\nSTK: 0769657008\nNgân hàng: MB BANK\nChủ TK: NGUYEN TAI PHAT\nCú pháp: COC_MAY",
   },
-  { label: "Thủ tục thuê máy", text: "Thủ tục thuê máy gồm: Căn cước công dân gốc + Tiền đặt cọc trước khi nhận máy." },
   { label: "Địa chỉ tiệm", text: "Tiệm Của Mew mở cửa từ 8:00 - 21:00 hàng ngày tại trung tâm thành phố." },
   { label: "Giao máy tận nơi", text: "Tiệm hỗ trợ giao máy ảnh & ống kính tận nơi trong nội thành." },
 ];
@@ -32,7 +39,7 @@ export function QuickReplyChips({ onSelect, userInfo }: QuickReplyChipsProps) {
     ...(userInfo
       ? [
           {
-            label: "📍 Gửi thông tin của tôi",
+            label: "Gửi thông tin của tôi",
             text: `Thông tin giao nhận của tôi:\nHọ tên: ${userInfo.name || "Khách hàng"}\nSĐT: ${userInfo.phone || "Chưa cập nhật"}${userInfo.email ? `\nEmail: ${userInfo.email}` : ""}`,
           },
         ]
