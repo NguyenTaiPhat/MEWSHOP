@@ -200,7 +200,7 @@ export function ChatPopup() {
   }
 
   // Hide popup on admin routes and main chat page (moved AFTER all hooks to follow React Rules of Hooks)
-  if (pathname.startsWith("/admin") || pathname.startsWith("/chat")) {
+  if (pathname.startsWith("/admin") || pathname.startsWith("/chat") || pathname === "/login" || pathname === "/register") {
     return null;
   }
 

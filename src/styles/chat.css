@@ -292,7 +292,8 @@
 }
 
 /* Floating Chat Popup Window & Trigger Button */
-.chat-floating-btn {
+.chat-floating-btn,
+.chat-floating-trigger {
   position: fixed;
   bottom: 24px;
   right: 24px;
@@ -305,15 +306,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(234, 179, 8, 0.4);
+  box-shadow: 0 8px 24px rgba(217, 119, 6, 0.4);
   cursor: pointer;
   z-index: 9990;
   transition: all var(--transition-base);
 }
 
-.chat-floating-btn:hover {
+.chat-floating-btn:hover,
+.chat-floating-trigger:hover {
   transform: scale(1.08) rotate(5deg);
-  box-shadow: 0 12px 32px rgba(234, 179, 8, 0.6);
+  box-shadow: 0 12px 32px rgba(217, 119, 6, 0.6);
 }
 
 .chat-popup-window {
