@@ -42,6 +42,17 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-container">
+      <div className="auth-ambient-bg">
+        <Image
+          src={registerBg}
+          alt="Ambient Background"
+          fill
+          priority
+          sizes="110vw"
+          className="auth-ambient-img"
+        />
+        <div className="auth-ambient-overlay" />
+      </div>
       <div className="auth-split-wrapper">
         <div className="auth-hero-panel">
           <Image

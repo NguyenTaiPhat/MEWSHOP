@@ -183,6 +183,17 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <div className="auth-container">
+      <div className="auth-ambient-bg">
+        <Image
+          src={loginBg}
+          alt="Ambient Background"
+          fill
+          priority
+          sizes="110vw"
+          className="auth-ambient-img"
+        />
+        <div className="auth-ambient-overlay" />
+      </div>
       <Suspense fallback={<div className="auth-split-wrapper" style={{ height: "640px" }} />}>
         <LoginForm />
       </Suspense>
